@@ -31,6 +31,7 @@ jobs:
           echo "using $NAME"
 
       - name: Build and run the unit tests
+        if: ${{ !cancelled() }}
         run: |
           xcodebuild test \
             -project DeepSeekHarnessMobile.xcodeproj \
