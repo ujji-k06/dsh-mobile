@@ -366,14 +366,14 @@ struct MobilePluginRow: Identifiable {
     var readOnlyReason: String? { live?.readOnlyReason }
     var rowIdAndModule: String { moduleName.isEmpty ? id : "\(id) · \(moduleName)" }
     var statusText: String {
-        guard enabled else { return "已停用" }
+        guard enabled else { return "Disabled" }
         switch phase {
-        case "active": return "运行中"
-        case "failed": return "运行失败"
-        case "loading": return "加载中"
-        case "unloading": return "卸载中"
-        case "pending": return "待启动"
-        default: return "空闲"
+        case "active": return "Running"
+        case "failed": return "Failed"
+        case "loading": return "Loading"
+        case "unloading": return "Unloading"
+        case "pending": return "Pending"
+        default: return "Idle"
         }
     }
 }
@@ -384,19 +384,19 @@ struct MobileOfficialPlugin: Identifiable {
     var namespaces: [String] { raw["namespaces"]?.arrayValue?.compactMap(\.stringValue) ?? [] }
     var title: String {
         switch id {
-        case "shell": "终端"
-        case "agent-loop": "Agent 循环"
-        case "subagent": "子智能体"
-        case "web-search": "网页搜索"
+        case "shell": "Terminal"
+        case "agent-loop": "Agent loop"
+        case "subagent": "Subagent"
+        case "web-search": "Web search"
         default: id
         }
     }
     var description: String {
         switch id {
-        case "shell": "限制每条命令最多能跑多久、最多输出多少内容。"
-        case "agent-loop": "控制 Agent 派发工具调用的方式。"
-        case "subagent": "设置子智能体的递归层级、数量和模型。"
-        case "web-search": "设置 DeepSeek 的搜索提供方。"
+        case "shell": "Caps how long each command may run and how much output it may produce."
+        case "agent-loop": "Controls how the agent dispatches tool calls."
+        case "subagent": "Sets subagent recursion depth, count, and model."
+        case "web-search": "Sets the search provider for DeepSeek."
         default: ""
         }
     }

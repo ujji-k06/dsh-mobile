@@ -266,10 +266,10 @@ private struct PluginComponentSheet: View {
                         Text(entry.description).frame(maxWidth: .infinity, alignment: .leading)
                     }
                     VStack(alignment: .leading, spacing: 12) {
-                        componentField("组件 ID", value: entry.id)
-                        if !entry.moduleName.isEmpty { componentField("模块", value: entry.moduleName) }
-                        if let entryID = entry.entryID { componentField("运行条目 ID", value: entryID) }
-                        if let reason = entry.readOnlyReason { componentField("不可修改原因", value: reason) }
+                        componentField("Component ID", value: entry.id)
+                        if !entry.moduleName.isEmpty { componentField("Module", value: entry.moduleName) }
+                        if let entryID = entry.entryID { componentField("Entry ID", value: entryID) }
+                        if let reason = entry.readOnlyReason { componentField("Read-only reason", value: reason) }
                     }
                     .padding(.top, 8)
                 }

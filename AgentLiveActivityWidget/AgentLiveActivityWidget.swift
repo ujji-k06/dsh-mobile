@@ -105,17 +105,17 @@ private func expandedStatusText(
     _ context: ActivityViewContext<AgentActivityAttributes>
 ) -> String {
     if context.isStale && !context.state.phase.isTerminal {
-        return "待同步"
+        return "Stale"
     }
     switch context.state.phase {
-    case .running: return "执行中"
-    case .awaitingChoice: return "待选择"
-    case .awaitingApproval: return "待审批"
-    case .submittingApproval: return "提交中"
-    case .approved: return "已允许"
-    case .rejected: return "已拒绝"
-    case .failed: return "失败"
-    case .completed: return "已完成"
+    case .running: return "Running"
+    case .awaitingChoice: return "Awaiting choice"
+    case .awaitingApproval: return "Awaiting approval"
+    case .submittingApproval: return "Submitting"
+    case .approved: return "Approved"
+    case .rejected: return "Rejected"
+    case .failed: return "Failed"
+    case .completed: return "Completed"
     }
 }
 
@@ -187,7 +187,7 @@ private struct AgentDynamicIslandExpandedContent: View {
                 Spacer(minLength: 8)
                 Link(destination: AgentActivityLink.session(context)) {
                     HStack(spacing: 3) {
-                        Text("详情")
+                        Text("Details")
                         Image(systemName: "chevron.right")
                             .font(.system(size: 10, weight: .semibold))
                     }
@@ -225,7 +225,7 @@ private struct AgentDynamicIslandExpandedContent: View {
     }
 
     private var approvalOperation: some View {
-        Text(state.command?.isEmpty == false ? state.command! : (state.detail ?? "等待操作详情"))
+        Text(state.command?.isEmpty == false ? state.command! : (state.detail ?? "Waiting for operation details"))
             .font(.system(size: 13, design: .monospaced))
             .tracking(-0.3)
             .lineLimit(1)
@@ -301,12 +301,12 @@ private struct AgentDynamicIslandExpandedContent: View {
     private var failureActions: some View {
         HStack(spacing: 7) {
             Link(destination: AgentActivityLink.session(context)) {
-                Text("查看详情")
+                Text("View details")
                     .frame(maxWidth: .infinity, minHeight: AgentActivityMetrics.islandActionHeight)
                     .background(AgentActivityColors.islandTile, in: Capsule())
             }
             Link(destination: AgentActivityLink.session(context)) {
-                Label("检查结果", systemImage: "arrow.clockwise")
+                Label("Check result", systemImage: "arrow.clockwise")
                     .frame(maxWidth: .infinity, minHeight: AgentActivityMetrics.islandActionHeight)
                     .foregroundStyle(Color(red: 0.09, green: 0.16, blue: 0.19))
                     .background(AgentActivityColors.accent, in: Capsule())
@@ -322,7 +322,7 @@ private struct AgentDynamicIslandExpandedContent: View {
     }
 
     private var stepTitle: String {
-        if context.isStale && !state.phase.isTerminal { return "打开 App 获取最新进度" }
+        if context.isStale && !state.phase.isTerminal { return "Open the app for the latest progress" }
         return state.detail?.isEmpty == false
             ? state.detail!
             : AgentActivityPresentation.stepTitle(for: state.phase)
@@ -397,7 +397,7 @@ private struct AgentActivityCard: View {
             Spacer(minLength: 8)
             Link(destination: AgentActivityLink.session(context)) {
                 HStack(spacing: 3) {
-                    Text("详情")
+                    Text("Details")
                     Image(systemName: "chevron.right")
                         .font(.system(size: 10, weight: .semibold))
                 }
@@ -409,7 +409,7 @@ private struct AgentActivityCard: View {
     }
 
     private var operation: some View {
-        Text(state.command?.isEmpty == false ? state.command! : "等待操作详情")
+        Text(state.command?.isEmpty == false ? state.command! : "Waiting for operation details")
             .font(.system(size: 12, design: .monospaced))
             .tracking(-0.4)
             .lineLimit(2)
@@ -457,7 +457,7 @@ private struct AgentActivityCard: View {
             Spacer(minLength: 12)
             Link(destination: AgentActivityLink.session(context)) {
                 HStack(spacing: 3) {
-                    Text("查看会话")
+                    Text("Open session")
                     Image(systemName: "chevron.right")
                         .font(.system(size: 10, weight: .semibold))
                 }
@@ -476,7 +476,7 @@ private struct AgentActivityCard: View {
     private var submitting: some View {
         HStack(spacing: 7) {
             ProgressView().controlSize(.small).tint(dimmed)
-            Text(state.detail?.isEmpty == false ? state.detail! : "正在等待主机确认")
+            Text(state.detail?.isEmpty == false ? state.detail! : "Waiting for the host to confirm")
                 .lineLimit(1)
         }
         .font(.system(size: 13))
@@ -488,12 +488,12 @@ private struct AgentActivityCard: View {
     private var failureActions: some View {
         HStack(spacing: AgentActivityMetrics.actionSpacing) {
             Link(destination: AgentActivityLink.session(context)) {
-                Text("查看详情")
+                Text("View details")
                     .frame(maxWidth: .infinity, minHeight: AgentActivityMetrics.actionHeight)
                     .background(tile, in: Capsule())
             }
             Link(destination: AgentActivityLink.session(context)) {
-                Label("检查结果", systemImage: "arrow.clockwise")
+                Label("Check result", systemImage: "arrow.clockwise")
                     .frame(maxWidth: .infinity, minHeight: AgentActivityMetrics.actionHeight)
                     .foregroundStyle(Color(red: 0.09, green: 0.16, blue: 0.19))
                     .background(AgentActivityColors.accent, in: Capsule())
@@ -507,7 +507,7 @@ private struct AgentActivityCard: View {
         AgentActivityPresentation.stepSymbol(for: state)
     }
     private var stepTitle: String {
-        if context.isStale && !state.phase.isTerminal { return "打开 App 获取最新进度" }
+        if context.isStale && !state.phase.isTerminal { return "Open the app for the latest progress" }
         return state.detail?.isEmpty == false ? state.detail! : AgentActivityPresentation.stepTitle(for: state.phase)
     }
     private var stepDetail: String {
@@ -549,7 +549,7 @@ private struct AgentApprovalButtons: View {
                     rpcID: rpcID,
                     approvalID: approvalID
                 )) {
-                    Label("拒绝", systemImage: "xmark")
+                    Label("Reject", systemImage: "xmark")
                         .frame(maxWidth: .infinity, minHeight: height)
                         .foregroundStyle(foreground)
                         .background(tile, in: Capsule())
@@ -561,7 +561,7 @@ private struct AgentApprovalButtons: View {
                     rpcID: rpcID,
                     approvalID: approvalID
                 )) {
-                    Label("允许一次", systemImage: "checkmark")
+                    Label("Approve once", systemImage: "checkmark")
                         .frame(maxWidth: .infinity, minHeight: height)
                         .foregroundStyle(Color(red: 0.09, green: 0.16, blue: 0.19))
                         .background(AgentActivityColors.accent, in: Capsule())
@@ -693,37 +693,37 @@ private enum AgentActivityPresentation {
     static func compactText(for phase: AgentActivityPhase, status: String) -> String {
         switch phase {
         case .running: ""
-        case .awaitingChoice: "待选择"
-        case .awaitingApproval: "待审批"
-        case .submittingApproval: "提交中"
-        case .approved: "已允许"
-        case .rejected: "已拒绝"
-        case .failed: status == "执行失败" ? "失败" : "待确认"
-        case .completed: "已完成"
+        case .awaitingChoice: "Awaiting choice"
+        case .awaitingApproval: "Awaiting approval"
+        case .submittingApproval: "Submitting"
+        case .approved: "Approved"
+        case .rejected: "Rejected"
+        case .failed: status == "Execution failed" ? "Failed" : "Unconfirmed"
+        case .completed: "Completed"
         }
     }
 
     static func stepTitle(for phase: AgentActivityPhase) -> String {
         switch phase {
-        case .running: "Agent 正在处理"
-        case .awaitingChoice: "请打开 App 完成选择"
-        case .approved: "批准已送达"
-        case .rejected: "本次命令未执行"
-        case .completed: "任务已完成"
-        case .failed: "执行未完成"
-        case .awaitingApproval, .submittingApproval: "等待操作"
+        case .running: "Agent is working"
+        case .awaitingChoice: "Open the app to make a choice"
+        case .approved: "Approval delivered"
+        case .rejected: "This command did not run"
+        case .completed: "Task completed"
+        case .failed: "Execution incomplete"
+        case .awaitingApproval, .submittingApproval: "Waiting for action"
         }
     }
 
     static func stepDetail(for phase: AgentActivityPhase) -> String {
         switch phase {
-        case .running: "正在等待下一步"
-        case .awaitingChoice: "Agent 正在等待你的回答"
-        case .approved: "等待 Agent 更新下一步"
-        case .rejected: "决定已送达，等待 Agent 后续状态"
-        case .completed: "Agent 已完成本次任务"
-        case .failed: "打开 App 查看详情"
-        case .awaitingApproval, .submittingApproval: "仅授权本次操作"
+        case .running: "Waiting for the next step"
+        case .awaitingChoice: "Agent is waiting for your answer"
+        case .approved: "Waiting for the Agent to continue"
+        case .rejected: "Decision delivered, waiting for the Agent"
+        case .completed: "Agent finished this task"
+        case .failed: "Open the app for details"
+        case .awaitingApproval, .submittingApproval: "Authorizes this operation only"
         }
     }
 
@@ -754,7 +754,7 @@ private enum AgentActivityLink {
 private let previewAttributes = AgentActivityAttributes(
     gatewayID: "preview-gateway",
     sessionID: "preview-session",
-    sessionTitle: "修复 Android 构建",
+    sessionTitle: "Fix Android build",
     startedAt: Date().addingTimeInterval(-168)
 )
 
@@ -767,7 +767,7 @@ private func previewState(
     stepKind: AgentActivityStepKind? = nil
 ) -> AgentActivityAttributes.ContentState {
     AgentActivityAttributes.ContentState(
-        sessionTitle: "修复 Android 构建",
+        sessionTitle: "Fix Android build",
         phase: phase,
         status: status,
         detail: detail,
@@ -782,102 +782,102 @@ private func previewState(
     )
 }
 
-#Preview("运行中 · 紧凑", as: .dynamicIsland(.compact), using: previewAttributes) {
+#Preview("Running · Compact", as: .dynamicIsland(.compact), using: previewAttributes) {
     AgentLiveActivityWidget()
 } contentStates: {
     previewState(
         phase: .running,
-        status: "正在执行",
-        detail: "正在分析构建日志",
+        status: "Running",
+        detail: "Analyzing build logs",
         stepKind: .reading
     )
 }
 
-#Preview("运行中 · 展开", as: .dynamicIsland(.expanded), using: previewAttributes) {
+#Preview("Running · Expanded", as: .dynamicIsland(.expanded), using: previewAttributes) {
     AgentLiveActivityWidget()
 } contentStates: {
     previewState(
         phase: .running,
-        status: "正在执行",
-        detail: "正在分析构建日志",
+        status: "Running",
+        detail: "Analyzing build logs",
         stepKind: .reading
     )
 }
 
-#Preview("等待审批 · 展开", as: .dynamicIsland(.expanded), using: previewAttributes) {
+#Preview("Awaiting approval · Expanded", as: .dynamicIsland(.expanded), using: previewAttributes) {
     AgentLiveActivityWidget()
 } contentStates: {
     previewState(
         phase: .awaitingApproval,
-        status: "需要批准 · 仅限本次",
-        detail: "运行构建命令",
+        status: "Approval needed · this once",
+        detail: "Running build command",
         command: "./gradlew :androidApp:assembleDebug"
     )
 }
 
-#Preview("等待选择 · 展开", as: .dynamicIsland(.expanded), using: previewAttributes) {
+#Preview("Awaiting choice · Expanded", as: .dynamicIsland(.expanded), using: previewAttributes) {
     AgentLiveActivityWidget()
 } contentStates: {
     previewState(
         phase: .awaitingChoice,
-        status: "需要选择",
-        detail: "请打开 App 完成选择",
-        secondaryDetail: "请选择希望 Agent 接下来处理的方向"
+        status: "Choice needed",
+        detail: "Open the app to make a choice",
+        secondaryDetail: "Choose what the Agent should do next"
     )
 }
 
-#Preview("等待选择 · 锁屏", as: .content, using: previewAttributes) {
+#Preview("Awaiting choice · Lock screen", as: .content, using: previewAttributes) {
     AgentLiveActivityWidget()
 } contentStates: {
     previewState(
         phase: .awaitingChoice,
-        status: "需要选择",
-        detail: "请打开 App 完成选择",
-        secondaryDetail: "请选择希望 Agent 接下来处理的方向"
+        status: "Choice needed",
+        detail: "Open the app to make a choice",
+        secondaryDetail: "Choose what the Agent should do next"
     )
 }
 
-#Preview("已允许 · 展开", as: .dynamicIsland(.expanded), using: previewAttributes) {
+#Preview("Approved · Expanded", as: .dynamicIsland(.expanded), using: previewAttributes) {
     AgentLiveActivityWidget()
 } contentStates: {
-    previewState(phase: .approved, status: "已允许本次操作", detail: "批准已送达")
+    previewState(phase: .approved, status: "Approved this operation", detail: "Approval delivered")
 }
 
-#Preview("已拒绝 · 展开", as: .dynamicIsland(.expanded), using: previewAttributes) {
+#Preview("Rejected · Expanded", as: .dynamicIsland(.expanded), using: previewAttributes) {
     AgentLiveActivityWidget()
 } contentStates: {
-    previewState(phase: .rejected, status: "已拒绝本次操作", detail: "本次命令未执行")
+    previewState(phase: .rejected, status: "Rejected this operation", detail: "This command did not run")
 }
 
-#Preview("提交失败 · 展开", as: .dynamicIsland(.expanded), using: previewAttributes) {
+#Preview("Submission failed · Expanded", as: .dynamicIsland(.expanded), using: previewAttributes) {
     AgentLiveActivityWidget()
 } contentStates: {
     previewState(
         phase: .failed,
-        status: "未能确认审批结果",
-        detail: "确认结果后才能继续操作",
+        status: "Could not confirm the approval",
+        detail: "Confirm the result to continue",
         command: "./gradlew :androidApp:assembleDebug"
     )
 }
 
-#Preview("运行中 · 锁屏", as: .content, using: previewAttributes) {
+#Preview("Running · Lock screen", as: .content, using: previewAttributes) {
     AgentLiveActivityWidget()
 } contentStates: {
     previewState(
         phase: .running,
-        status: "正在执行",
-        detail: "正在分析构建日志",
+        status: "Running",
+        detail: "Analyzing build logs",
         stepKind: .message
     )
 }
 
-#Preview("等待审批 · 锁屏", as: .content, using: previewAttributes) {
+#Preview("Awaiting approval · Lock screen", as: .content, using: previewAttributes) {
     AgentLiveActivityWidget()
 } contentStates: {
     previewState(
         phase: .awaitingApproval,
-        status: "需要批准 · 仅限本次",
-        detail: "运行构建命令",
+        status: "Approval needed · this once",
+        detail: "Running build command",
         command: "./gradlew :androidApp:assembleDebug"
     )
 }

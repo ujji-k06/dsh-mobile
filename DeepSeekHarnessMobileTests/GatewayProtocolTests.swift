@@ -239,7 +239,7 @@ final class AgentLiveActivityEventProjectionTests: XCTestCase {
             source: "skill-catalog"
         )))
 
-        XCTAssertEqual(projected.headline, "上下文注入 · skill-catalog")
+        XCTAssertEqual(projected.headline, "Context injection · skill-catalog")
         XCTAssertEqual(projected.detail, "Use the repository skill catalog before choosing a workflow.")
         XCTAssertEqual(projected.kind, .context)
     }
@@ -256,8 +256,8 @@ final class AgentLiveActivityEventProjectionTests: XCTestCase {
             ])
         )))
 
-        XCTAssertEqual(projected.headline, "写入")
-        XCTAssertEqual(projected.detail, "articles/北京中轴线.md · 2 行")
+        XCTAssertEqual(projected.headline, "Write")
+        XCTAssertEqual(projected.detail, "articles/北京中轴线.md · 2 lines")
         XCTAssertEqual(projected.kind, .writing)
     }
 
@@ -268,7 +268,7 @@ final class AgentLiveActivityEventProjectionTests: XCTestCase {
             toolName: nil
         ))
 
-        XCTAssertEqual(projected.headline, "思考")
+        XCTAssertEqual(projected.headline, "Thinking")
         XCTAssertEqual(projected.detail, "Now check character count")
         XCTAssertEqual(projected.kind, .reasoning)
     }
@@ -279,7 +279,7 @@ final class AgentLiveActivityEventProjectionTests: XCTestCase {
             completedToolLabel: "写入"
         ))
 
-        XCTAssertEqual(projected.headline, "写入完成")
+        XCTAssertEqual(projected.headline, "Write done")
         XCTAssertEqual(projected.detail, "saved")
         XCTAssertEqual(projected.kind, .result)
     }

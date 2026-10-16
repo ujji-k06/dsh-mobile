@@ -115,9 +115,9 @@ final class AgentLiveActivityManager {
             title: title,
             state: state(
                 phase: .running,
-                status: "正在执行",
-                detail: "Agent 正在处理",
-                secondaryDetail: turn.map { "第 \($0) 轮 · 等待执行步骤" } ?? "正在等待执行步骤",
+                status: "Running",
+                detail: "The agent is working",
+                secondaryDetail: turn.map { "Turn \($0) · Waiting for steps" } ?? "Waiting for steps",
                 sourceLabel: sourceLabel,
                 stepKind: .preparing
             )
@@ -137,9 +137,9 @@ final class AgentLiveActivityManager {
             title: title,
             state: state(
                 phase: .running,
-                status: "正在执行",
-                detail: "正在分析执行步骤",
-                secondaryDetail: step.map { "第 \($0) 步 · Agent 正在处理" } ?? "Agent 正在处理",
+                status: "Running",
+                detail: "Analyzing execution steps",
+                secondaryDetail: step.map { "Step \($0) · The agent is working" } ?? "The agent is working",
                 sourceLabel: sourceLabel,
                 stepKind: .reasoning
             )
@@ -163,7 +163,7 @@ final class AgentLiveActivityManager {
             title: title,
             state: state(
                 phase: .running,
-                status: "正在执行",
+                status: "Running",
                 detail: headline,
                 secondaryDetail: detail,
                 sourceLabel: sourceLabel,
@@ -187,9 +187,9 @@ final class AgentLiveActivityManager {
             title: title,
             state: state(
                 phase: .running,
-                status: "正在执行",
-                detail: displayName?.isEmpty == false ? "正在执行 \(displayName!)" : "正在调用工具",
-                secondaryDetail: "Agent 正在处理当前步骤",
+                status: "Running",
+                detail: displayName?.isEmpty == false ? "Running \(displayName!)" : "Calling a tool",
+                secondaryDetail: "The agent is working on the current step",
                 sourceLabel: sourceLabel,
                 toolName: toolName,
                 stepKind: .tool
@@ -210,9 +210,9 @@ final class AgentLiveActivityManager {
             title: title,
             state: state(
                 phase: .awaitingApproval,
-                status: "需要批准 · 仅限本次",
+                status: "Approval required · this time only",
                 detail: request.reason ?? request.toolName,
-                secondaryDetail: "仅授权本次操作",
+                secondaryDetail: "Authorizes this operation only",
                 sourceLabel: sourceLabel,
                 command: command,
                 rpcID: request.rpcId,
@@ -236,11 +236,11 @@ final class AgentLiveActivityManager {
             title: title,
             state: state(
                 phase: .awaitingChoice,
-                status: "需要选择",
-                detail: "请打开 App 完成选择",
+                status: "Choice required",
+                detail: "Open the app to make a choice",
                 secondaryDetail: normalizedPrompt?.isEmpty == false
                     ? normalizedPrompt
-                    : "Agent 正在等待你的回答",
+                    : "Agent is waiting for your answer",
                 sourceLabel: sourceLabel,
                 rpcID: request.rpcId,
                 stepKind: .message
@@ -266,9 +266,9 @@ final class AgentLiveActivityManager {
             fallbackTitle: title,
             state: state(
                 phase: .running,
-                status: "正在执行",
-                detail: cancelled ? "已跳过选择" : "选择已提交",
-                secondaryDetail: "等待 Agent 继续执行",
+                status: "Running",
+                detail: cancelled ? "Choice skipped" : "Choice submitted",
+                secondaryDetail: "Waiting for the Agent to continue",
                 sourceLabel: sourceLabel,
                 rpcID: rpcID,
                 stepKind: .message
@@ -334,16 +334,16 @@ final class AgentLiveActivityManager {
         command: String?,
         sourceLabel: String? = nil
     ) {
-        let detail = outcome == .allowedOnce ? "正在提交「允许一次」" : "正在提交「拒绝」"
+        let detail = outcome == .allowedOnce ? "Submitting “Allow once”" : "Submitting “Deny”"
         upsert(
             gatewayID: gatewayID,
             sessionID: request.sessionId,
             title: title,
             state: state(
                 phase: .submittingApproval,
-                status: "正在提交决定",
+                status: "Submitting your decision",
                 detail: detail,
-                secondaryDetail: "正在等待主机确认",
+                secondaryDetail: "Waiting for the host to confirm",
                 sourceLabel: sourceLabel,
                 command: command,
                 rpcID: request.rpcId,
@@ -368,9 +368,9 @@ final class AgentLiveActivityManager {
             fallbackTitle: title,
             state: state(
                 phase: approved ? .approved : .rejected,
-                status: approved ? "已允许本次操作" : "已拒绝本次操作",
-                detail: approved ? "批准已送达" : "本次命令未执行",
-                secondaryDetail: approved ? "等待 Agent 更新下一步" : "决定已送达，等待 Agent 后续状态",
+                status: approved ? "Approved this operation" : "Rejected this operation",
+                detail: approved ? "Approval delivered" : "This command did not run",
+                secondaryDetail: approved ? "Waiting for the Agent to continue" : "Decision delivered, waiting for the Agent",
                 sourceLabel: sourceLabel,
                 rpcID: rpcID
             )
@@ -391,9 +391,9 @@ final class AgentLiveActivityManager {
             fallbackTitle: title,
             state: state(
                 phase: .failed,
-                status: "未能确认审批结果",
-                detail: reason?.isEmpty == false ? reason : "确认结果后才能继续操作",
-                secondaryDetail: "确认结果后才能继续操作",
+                status: "Could not confirm the approval result",
+                detail: reason?.isEmpty == false ? reason : "Confirm the result before continuing",
+                secondaryDetail: "Confirm the result before continuing",
                 sourceLabel: sourceLabel,
                 rpcID: rpcID
             ),
@@ -415,18 +415,18 @@ final class AgentLiveActivityManager {
         if current.phase == .rejected {
             finalState = state(
                 phase: .rejected,
-                status: "已拒绝本次操作",
-                detail: "本次命令未执行",
-                secondaryDetail: "决定已送达，Agent 已停止当前操作",
+                status: "Rejected this operation",
+                detail: "This command did not run",
+                secondaryDetail: "Decision delivered, the Agent stopped the current operation",
                 sourceLabel: sourceLabel ?? current.sourceLabel,
                 rpcID: current.rpcID
             )
         } else {
             finalState = state(
                 phase: failed ? .failed : .completed,
-                status: failed ? "执行失败" : "执行完成",
-                detail: failed ? "执行未完成" : "任务已完成",
-                secondaryDetail: failed ? "打开 App 查看详情" : "Agent 已完成本次任务",
+                status: failed ? "Execution failed" : "Completed",
+                detail: failed ? "Execution incomplete" : "Task completed",
+                secondaryDetail: failed ? "Open the app for details" : "Agent finished this task",
                 sourceLabel: sourceLabel ?? current.sourceLabel
             )
         }
@@ -673,14 +673,14 @@ final class AgentLiveActivityManager {
         switch state.phase {
         case .awaitingApproval:
             return AlertConfiguration(
-                title: "需要审批",
-                body: "Agent 请求批准本次操作",
+                title: "Approval required",
+                body: "The agent is requesting approval for this action",
                 sound: .default
             )
         case .awaitingChoice:
             return AlertConfiguration(
-                title: "需要选择",
-                body: "Agent 正在等待你的回答",
+                title: "Choice required",
+                body: "Agent is waiting for your answer",
                 sound: .default
             )
         case .running, .submittingApproval, .approved, .rejected, .failed, .completed:

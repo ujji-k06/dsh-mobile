@@ -799,7 +799,7 @@ struct ConversationView: View {
             Image(systemName: "exclamationmark.triangle").appFont(.largeTitle).foregroundStyle(.orange)
             Text("历史记录加载失败").appFont(.title3.weight(.semibold))
             Text(error.contains("refuses this format")
-                 ? "Host 无法读取旧格式会话，请修复或升级 Host 后重试。原始记录未修改。"
+                 ? "This Host cannot read sessions in the old format. Repair or upgrade the Host and try again. The original records were not modified."
                  : error)
                 .appFont(.subheadline).foregroundStyle(.secondary)
                 .multilineTextAlignment(.center).lineLimit(6)
@@ -1270,7 +1270,7 @@ struct ConversationView: View {
                     Button { queueExpanded.toggle() } label: {
                         HStack {
                             Image(systemName: "text.bubble")
-                            Text("排队消息 · \(items.count)")
+                            Text("Queued messages · \(items.count)")
                             Spacer()
                             Image(systemName: "chevron.up")
                                 .rotationEffect(.degrees(queueExpanded ? 180 : 0))
@@ -1317,16 +1317,16 @@ struct ConversationView: View {
                     VStack(alignment: .leading, spacing: 3) {
                         Text(item.preview).appFont(.subheadline).lineLimit(2)
                         if item.attachmentCount > 0 {
-                            Text("\(item.attachmentCount) 个附件").appFont(.caption).foregroundStyle(.secondary)
+                            Text("\(item.attachmentCount) attachments").appFont(.caption).foregroundStyle(.secondary)
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     if store.queueState.pendingItemId == item.id {
                         ProgressView().frame(width: 36, height: 40)
                     } else {
-                        queueActionButton("pencil", label: "编辑排队消息", itemID: item.id, action: "edit", enabled: item.editable)
-                        queueActionButton("trash", label: "删除排队消息", itemID: item.id, action: "remove")
-                        queueActionButton("arrow.up", label: "立即插话", itemID: item.id, action: "steer", enabled: store.selectedSession?.isRunning == true)
+                        queueActionButton("pencil", label: "Edit queued message", itemID: item.id, action: "edit", enabled: item.editable)
+                        queueActionButton("trash", label: "Delete queued message", itemID: item.id, action: "remove")
+                        queueActionButton("arrow.up", label: "Interject now", itemID: item.id, action: "steer", enabled: store.selectedSession?.isRunning == true)
                     }
                 }
                 .padding(.leading, 10)
@@ -1506,8 +1506,8 @@ struct ConversationView: View {
                         .scaledToFit()
                         .frame(width: 16, height: 16)
                         .accessibilityHidden(true)
-                    Text(state.saving ? "切换中…" : current?.name ?? state.agentPreset.map(agentPresetTitle)
-                         ?? (state.loading ? "读取模式…" : "重试模式"))
+                    Text(state.saving ? "Switching…" : current?.name ?? state.agentPreset.map(agentPresetTitle)
+                         ?? (state.loading ? "Reading mode…" : "Retry mode"))
                         .lineLimit(1)
                         .truncationMode(.tail)
                     Image(systemName: "chevron.down")
@@ -1542,7 +1542,7 @@ struct ConversationView: View {
                                         Text(preset.name ?? agentPresetTitle(preset.id))
                                             .appFont(.body.weight(.medium))
                                         Text(preset.broken?.boolValue == true
-                                             ? preset.brokenReason ?? "模式不可用"
+                                             ? preset.brokenReason ?? "Mode unavailable"
                                              : agentPresetCompactDescription(preset.id, description: preset.description_))
                                             .appFont(.caption)
                                             .foregroundStyle(.secondary)
@@ -1576,11 +1576,11 @@ struct ConversationView: View {
 
     private func agentPresetCompactDescription(_ id: String, description: String?) -> String {
         switch id {
-        case "standard": return "完整工具，适合日常开发"
-        case "code": return "用代码组合多步工具操作"
-        case "minimal": return "仅用 Shell，轻量直接"
-        case "cordis": return "创建和调试自定义 Agent"
-        default: return description ?? "自定义 Agent 模式"
+        case "standard": return "Full toolset, suited to everyday development"
+        case "code": return "Combine multi-step tool operations in code"
+        case "minimal": return "Shell only, lightweight and direct"
+        case "cordis": return "Create and debug custom Agents"
+        default: return description ?? "Custom Agent mode"
         }
     }
 
@@ -2160,13 +2160,13 @@ private struct DeepSearchProgressRow: View {
     private enum Activity: Hashable { case thinking, gathering, exploring, reviewing, revisiting, composing, working }
     private static let phraseIntervalSeconds = 30
     private static let phrases: [Activity: [String]] = [
-        .thinking: ["梳理脉络中", "推敲细节中", "酝酿下一步中", "沿着思路前行中"],
-        .gathering: ["翻阅已有线索中", "收拢相关信息中", "寻找切入点中", "铺开问题脉络中"],
-        .exploring: ["向外寻找线索中", "打捞新线索中", "沿途探查中", "搜集更多拼图中"],
-        .reviewing: ["对照新发现中", "拼合新线索中", "检视所得中", "把发现串起来中"],
-        .revisiting: ["回看已有线索中", "重新校准方向中", "再推敲一遍中", "换个角度审视中"],
-        .composing: ["组织回应中", "整理表达中", "将思路落成文字中", "勾勒答案中"],
-        .working: ["继续推进中", "稳步探索中", "梳理当前进展中", "逐步展开中"]
+        .thinking: ["Tracing the thread", "Weighing the details", "Shaping the next step", "Following the line of thought"],
+        .gathering: ["Reading the existing clues", "Pulling the pieces together", "Looking for an entry point", "Laying out the problem"],
+        .exploring: ["Looking outward for clues", "Fishing for new leads", "Probing along the way", "Collecting more of the puzzle"],
+        .reviewing: ["Comparing new findings", "Assembling the new clues", "Examining what turned up", "Stringing the findings together"],
+        .revisiting: ["Revisiting the existing clues", "Recalibrating direction", "Weighing it once more", "Looking from another angle"],
+        .composing: ["Organizing the response", "Shaping the wording", "Putting the thinking into words", "Sketching the answer"],
+        .working: ["Pressing on", "Exploring steadily", "Reviewing current progress", "Unfolding step by step"]
     ]
 
     private func phrase(for elapsed: Int) -> String {
@@ -2189,7 +2189,7 @@ private struct DeepSearchProgressRow: View {
             case .status: activity = .working
             }
         }
-        let options = Self.phrases[activity] ?? ["梳理脉络中"]
+        let options = Self.phrases[activity] ?? ["Tracing the thread"]
         return options[(Int(startDate.timeIntervalSince1970) + bucket) % options.count]
     }
 
@@ -2316,7 +2316,7 @@ private struct TaskGoalPanels: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(tasksExpanded ? "收起任务" : "展开任务")
+            .accessibilityLabel(tasksExpanded ? "Collapse tasks" : "Expand tasks")
 
             if tasksExpanded {
                 VStack(alignment: .leading, spacing: 9) {
@@ -2364,11 +2364,11 @@ private struct TaskGoalPanels: View {
             } else {
                 goalActionButton(
                     active ? "pause.circle" : "play.circle",
-                    active ? "暂停目标" : "继续目标",
+                    active ? "Pause goal" : "Resume goal",
                     onPauseResume
                 )
-                goalActionButton("pencil", "编辑目标", onEdit)
-                goalActionButton("trash", "删除目标", onClear)
+                goalActionButton("pencil", "Edit goal", onEdit)
+                goalActionButton("trash", "Clear goal", onClear)
             }
         }
         .padding(15)
@@ -2382,9 +2382,9 @@ private struct TaskGoalPanels: View {
 
     private var taskSummary: String {
         [
-            completedCount > 0 ? "\(completedCount) 已完成" : nil,
-            activeCount > 0 ? "\(activeCount) 进行中" : nil,
-            pendingCount > 0 ? "\(pendingCount) 待处理" : nil
+            completedCount > 0 ? "\(completedCount) done" : nil,
+            activeCount > 0 ? "\(activeCount) in progress" : nil,
+            pendingCount > 0 ? "\(pendingCount) pending" : nil
         ]
         .compactMap { $0 }
         .joined(separator: " · ")
@@ -2431,10 +2431,10 @@ private struct TaskGoalPanels: View {
 
     private func goalPhaseLabel(_ phase: String) -> String {
         switch phase {
-        case "active": "进行中的目标"
-        case "paused": "已暂停的目标"
-        case "blocked": "受阻的目标"
-        default: "当前目标"
+        case "active": "Active goal"
+        case "paused": "Paused goal"
+        case "blocked": "Blocked goal"
+        default: "Current goal"
         }
     }
 }
@@ -2812,7 +2812,7 @@ private struct SessionStatsSheet: View {
                         }
 
                         if let asOfSeq = snapshot.asOfSeq {
-                            Text("数据截至事件 #\(asOfSeq)")
+                            Text("Data through event #\(asOfSeq)")
                                 .appFont(.caption.monospacedDigit())
                                 .foregroundStyle(.tertiary)
                         }
@@ -3192,7 +3192,7 @@ struct ConversationProcessTool: Identifiable {
 
     var activitySummary: ToolActivitySummary {
         ToolActivitySummaryFormatter.shared.summarize(
-            name: call?.title ?? result?.title ?? "工具",
+            name: call?.title ?? result?.title ?? "Tool",
             arguments: call?.text ?? ""
         )
     }
@@ -3762,7 +3762,7 @@ private struct ConversationToolBundleHeaderRow: View {
     }
 
     private var bundleTitle: String {
-        let names = tools.compactMap { $0.call?.title }.prefix(2).joined(separator: "、")
+        let names = tools.compactMap { $0.call?.title }.prefix(2).joined(separator: ", ")
         return names.isEmpty
             ? String(localized: "tools.view-results", defaultValue: "查看 \(tools.count) 个工具结果")
             : String(
@@ -3803,11 +3803,11 @@ private struct ConversationProcessToolHeaderRow: View {
                 .frame(width: 17)
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 7) {
-                    Text(summary.label)
+                    Text(summary.localizedLabel)
                         .appFont(.subheadline.weight(.medium))
                         .foregroundStyle(.secondary)
                     if !summary.annotation.isEmpty {
-                        Text(summary.annotation)
+                        Text(summary.localizedAnnotation)
                             .appFont(.caption.monospacedDigit())
                             .foregroundStyle(.tertiary)
                     }

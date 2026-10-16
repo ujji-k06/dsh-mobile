@@ -78,9 +78,9 @@ enum GatewayProfileError: LocalizedError {
     case identity, address, conflict
     var errorDescription: String? {
         switch self {
-        case .identity: "网关身份缺失、无效或与已保存的主机不一致。连接已停止，请确认主机后重新配对。"
-        case .address: "网关地址无效或候选地址超过 16 个。公网连接必须使用 WSS，地址不能包含账号、查询参数或片段。"
-        case .conflict: "此网关身份已属于另一条主机记录，请从主机列表选择原记录后重新配对。"
+        case .identity: "The gateway identity is missing, invalid, or doesn't match the saved host. The connection stopped; confirm the host and pair again."
+        case .address: "The gateway address is invalid, or there are more than 16 candidate addresses. Public connections must use WSS, and the address can't contain credentials, query parameters, or a fragment."
+        case .conflict: "This gateway identity already belongs to another host record. Pick the original record in the host list and pair again."
         }
     }
 }

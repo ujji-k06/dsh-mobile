@@ -1,0 +1,32 @@
+name: iOS
+
+on:
+  push:
+    branches: [main, english-native]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify the localization catalog
+        run: python3 scripts/verify-localizations.py
+
+      - name: Pick an available iPhone simulator
+        id: sim
+        run: |
+          xcrun simctl list devices available -j > "$RUNNER_TEMP/sims.json"
+          NAME=$(python3 -c "import json; d=json.load(open('$RUNNER_TEMP/sims.json'))['devices']; print(sorted(n['name'] for v in d.values() for n in v if n['name'].startswith('iPhone'))[-1])")
+          echo "device=$NAME" >> "$GITHUB_OUTPUT"
+          echo "using $NAME"
+
+      - name: Build and run the unit tests
+        run: |
+          xcodebuild test \
+            -project DeepSeekHarnessMobile.xcodeproj \
+            -scheme DeepSeekHarnessMobile \
+            -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
+            -only-testing:DeepSeekHarnessMobileTests \
+            CODE_SIGNING_ALLOWED=NO

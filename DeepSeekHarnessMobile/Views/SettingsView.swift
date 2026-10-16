@@ -14,7 +14,7 @@ struct SettingsView: View {
     private let releaseInfo = BundledAppReleaseInfo.load()
 
     private var appVersion: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "未知"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown"
     }
 
     private var connectedGatewayVersion: String? {
@@ -181,7 +181,7 @@ struct SettingsView: View {
             if let host = store.hostSnapshot {
                 Section("DSH Host") {
                     LabeledContent("版本", value: [host.dshVersion, host.version].compactMap { $0 }
-                        .first { $0.range(of: "^v?[0-9]+\\.[0-9]+", options: .regularExpression) != nil } ?? "未提供")
+                        .first { $0.range(of: "^v?[0-9]+\\.[0-9]+", options: .regularExpression) != nil } ?? "Not available")
                     LabeledContent("已连接会话", value: "\(host.attachedSessions ?? 0)")
                     if let cwd = host.cwd {
                         LabeledContent {
@@ -230,11 +230,11 @@ struct SettingsView: View {
             }
 
             Section("关于") {
-                releaseRow("当前版本", value: appVersion, repository: "dsh-mobile", version: appVersion)
-                releaseRow("要求网关版本", value: releaseInfo.map { "≥ \($0.minimumGatewayVersion)" } ?? "未提供",
+                releaseRow("Current version", value: appVersion, repository: "dsh-mobile", version: appVersion)
+                releaseRow("Required gateway version", value: releaseInfo.map { "≥ \($0.minimumGatewayVersion)" } ?? "Not available",
                            repository: "dsh-plugin-mobile-gateway", version: releaseInfo?.minimumGatewayVersion)
-                releaseRow("已连接网关版本", value: !gatewayState.isConnected ? "未连接" :
-                    store.pluginsLoading ? "读取中…" : connectedGatewayVersion ?? "未提供",
+                releaseRow("Connected gateway version", value: !gatewayState.isConnected ? "Not connected" :
+                    store.pluginsLoading ? "Loading…" : connectedGatewayVersion ?? "Not available",
                     repository: "dsh-plugin-mobile-gateway", version: connectedGatewayVersion)
                 Button("本版本新功能") { showsReleaseNotes = true }
                 Button("隐私政策") { showsPrivacyPolicy = true }
@@ -266,7 +266,7 @@ struct SettingsView: View {
         .sheet(isPresented: $showsReleaseNotes) {
             NavigationStack {
                 ScrollView {
-                    Markdown(releaseInfo?.version == appVersion ? releaseInfo!.notes : "本版本发布说明暂未提供，请查看 GitHub 发布页。")
+                    Markdown(releaseInfo?.version == appVersion ? releaseInfo!.notes : "Release notes for this version aren't available yet. See the GitHub releases page.")
                         .padding(20)
                 }
                 .navigationTitle("本版本新功能")

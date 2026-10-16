@@ -25,20 +25,20 @@ enum AgentLiveActivityEventProjection {
         switch event.type {
         case "user/message" where event.source?.isEmpty == false && event.source != "user":
             return progress(
-                "上下文注入 · \(event.source!)",
+                "Context injection · \(event.source!)",
                 detail: preview(event.text),
                 kind: .context
             )
         case "step/start":
             return progress(
-                "正在分析执行步骤",
-                detail: event.step.map { "第 \($0) 步" },
+                "Analyzing execution steps",
+                detail: event.step.map { "Step \($0)" },
                 kind: .reasoning
             )
         case "step/end":
             return progress(
-                event.step.map { "第 \($0) 步已完成" } ?? "当前步骤已完成",
-                detail: "正在准备下一步",
+                event.step.map { "Step \($0) completed" } ?? "Current step completed",
+                detail: "Preparing the next step",
                 kind: .result
             )
         case "request/context":
@@ -47,7 +47,7 @@ enum AgentLiveActivityEventProjection {
                 event.raw?["skill"], event.raw?["name"]
             )
             return progress(
-                source.map { "上下文注入 · \($0)" } ?? "上下文注入",
+                source.map { "Context injection · \($0)" } ?? "Context injection",
                 detail: preview(firstText(event.raw?["text"], event.raw?["content"])),
                 kind: .context
             )
@@ -55,31 +55,32 @@ enum AgentLiveActivityEventProjection {
             let provider = event.raw?["header"]?["config"]?["provider"]?.stringValue
             let model = event.raw?["header"]?["config"]?["model"]?.stringValue
             return progress(
-                "准备 Agent 上下文",
+                "Preparing agent context",
                 detail: preview([provider, model].compactMap { $0 }.joined(separator: " · ")),
                 kind: .context
             )
         case "assistant/message":
             if let text = preview(event.text), !text.isEmpty {
-                return progress("Agent 回复", detail: text, kind: .message)
+                return progress("Agent reply", detail: text, kind: .message)
             }
             if let reasoning = preview(event.reasoning), !reasoning.isEmpty {
-                return progress("思考", detail: reasoning, kind: .reasoning)
+                return progress("Thinking", detail: reasoning, kind: .reasoning)
             }
             if let call = event.toolCalls?.first {
                 return toolProgress(name: call.name, arguments: call.arguments)
             }
             return nil
         case "assistant/attempt":
-            return progress("正在重新生成回复", detail: "Agent 正在重试当前步骤", kind: .reasoning)
+            return progress("Regenerating the reply", detail: "The agent is retrying the current step", kind: .reasoning)
         case "tool/call", "tool/code-dispatch-start":
             return toolProgress(name: event.name, arguments: event.arguments)
         case "tool/result", "tool/code-dispatch":
             let failed = event.isError == true
             let label = completedToolLabel?.trimmingCharacters(in: .whitespacesAndNewlines)
-            let headline = label?.isEmpty == false
-                ? "\(label!)\(failed ? "失败" : "完成")"
-                : (failed ? "工具执行失败" : "工具执行完成")
+            let labelText = label.map(ToolActivitySummary.localized(label:)) ?? ""
+            let headline = labelText.isEmpty
+                ? (failed ? "Tool failed" : "Tool completed")
+                : "\(labelText) \(failed ? "failed" : "done")"
             return progress(
                 headline,
                 detail: preview(event.preview ?? event.error),
@@ -88,29 +89,29 @@ enum AgentLiveActivityEventProjection {
             )
         case "command/run":
             return progress(
-                "执行命令",
+                "Running a command",
                 detail: preview(event.args ?? firstText(event.raw?["command"], event.raw?["text"])),
                 kind: .command
             )
         case "command/done":
             return progress(
-                event.isError == true ? "命令执行失败" : "命令执行完成",
+                event.isError == true ? String(localized: "命令执行失败") : String(localized: "命令执行完成"),
                 detail: preview(event.error ?? event.outcome ?? event.text),
                 kind: event.isError == true ? .command : .result
             )
         case "compaction/start":
-            return progress("正在整理会话上下文", detail: "压缩历史记录以继续执行", kind: .context)
+            return progress("Compacting session context", detail: "Compressing history to continue", kind: .context)
         case "compaction/end":
-            return progress("会话上下文已整理", detail: "Agent 正在继续执行", kind: .result)
+            return progress("Session context compacted", detail: "The agent is continuing", kind: .result)
         case "artifact/delivered", "file/delivered", "delivery/file":
             return progress(
-                "交付文件",
+                "Delivering a file",
                 detail: preview(firstText(event.raw?["path"], event.raw?["file"]) ?? event.text),
                 kind: .delivery
             )
         case "permission/preset":
             return progress(
-                "应用权限配置",
+                "Applying permission settings",
                 detail: preview(firstText(event.raw?["preset"], event.raw?["name"])),
                 kind: .preparing
             )
@@ -126,12 +127,12 @@ enum AgentLiveActivityEventProjection {
     ) -> AgentLiveActivityProgress? {
         switch chunkType {
         case "reasoning-delta":
-            return progress("思考", detail: preview(text), kind: .reasoning)
+            return progress("Thinking", detail: preview(text), kind: .reasoning)
         case "text-delta":
-            return progress("正在生成回复", detail: preview(text), kind: .message)
+            return progress("Generating the reply", detail: preview(text), kind: .message)
         case "tool-call-delta":
             return progress(
-                toolName?.isEmpty == false ? "准备调用 \(toolName!)" : "正在准备工具调用",
+                toolName?.isEmpty == false ? "Preparing to call \(toolName!)" : "Preparing a tool call",
                 detail: nil,
                 kind: .tool,
                 toolName: toolName
@@ -144,10 +145,10 @@ enum AgentLiveActivityEventProjection {
     private static func toolProgress(name: String?, arguments: JSONValue?) -> AgentLiveActivityProgress {
         let displayName = name?.trimmingCharacters(in: .whitespacesAndNewlines)
         let summary = ToolActivitySummaryFormatter.shared.summarize(
-            name: displayName?.isEmpty == false ? displayName! : "工具",
+            name: displayName?.isEmpty == false ? displayName! : "Tool",
             arguments: arguments?.jsonDisplayText ?? ""
         )
-        let detail = [summary.detail, summary.annotation]
+        let detail = [summary.detail, summary.localizedAnnotation]
             .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
             .joined(separator: " · ")
         let kind: AgentActivityStepKind
@@ -160,7 +161,7 @@ enum AgentLiveActivityEventProjection {
         default: kind = .tool
         }
         return progress(
-            summary.label,
+            summary.localizedLabel,
             detail: preview(detail),
             kind: kind,
             toolName: name
@@ -266,7 +267,7 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .system: String(localized: "跟随系统")
-        case .simplifiedChinese: "简体中文"
+        case .simplifiedChinese: "Chinese (Simplified)"
         case .english: "English"
         }
     }
@@ -462,7 +463,7 @@ final class AppStore: ObservableObject {
         queueActionTimeout = Task { [weak self] in
             do { try await Task.sleep(for: .seconds(20)) } catch { return }
             guard let self, self.queueState.pendingItemId == itemID else { return }
-            self.queueState = self.queueStore.failPending(message: "队列操作超时，请检查队列最新状态后重试")
+            self.queueState = self.queueStore.failPending(message: "Queue operation timed out. Check the queue state and try again.")
             self.lastError = self.queueState.lastError
         }
     }
@@ -1036,7 +1037,7 @@ final class AppStore: ObservableObject {
     func refreshScheduledTasks() {
         guard gateway.state.isConnected else {
             scheduledTasksLoading = false
-            scheduledTasksError = "连接网关后可查看定时任务"
+            scheduledTasksError = "Connect to a gateway to view scheduled tasks"
             return
         }
         scheduledTasksLoading = true
@@ -1049,7 +1050,7 @@ final class AppStore: ObservableObject {
             guard let self, self.scheduledTasksRequestID == requestID,
                   self.scheduledTasksLoading else { return }
             self.scheduledTasksLoading = false
-            self.scheduledTasksError = "定时任务请求超时，请重试"
+            self.scheduledTasksError = "The scheduled task request timed out. Try again."
         }
     }
 
@@ -1057,7 +1058,7 @@ final class AppStore: ObservableObject {
         pluginPageVisited = true
         guard gateway.state.isConnected else {
             pluginsLoading = false
-            pluginsError = "连接网关后可查看插件"
+            pluginsError = "Connect to a gateway to view plugins"
             return
         }
         let requestID = UUID().uuidString
@@ -1069,7 +1070,7 @@ final class AppStore: ObservableObject {
             try? await Task.sleep(for: .seconds(12))
             guard let self, self.pluginCatalogRequestID == requestID, self.pluginsLoading else { return }
             self.pluginsLoading = false
-            self.pluginsError = "插件目录请求超时，请重试"
+            self.pluginsError = "The plugin catalog request timed out. Try again."
         }
     }
 
@@ -1090,7 +1091,7 @@ final class AppStore: ObservableObject {
             guard let self, self.pluginToggleRequestID == requestID else { return }
             self.pluginToggleRequestID = nil
             self.pluginPendingName = nil
-            self.pluginNotice = "操作结果待确认，请刷新插件目录"
+            self.pluginNotice = "The result is unconfirmed. Refresh the plugin catalog."
             self.refreshPlugins()
         }
     }
@@ -1108,7 +1109,7 @@ final class AppStore: ObservableObject {
                 officialItems: (frame.officialItems ?? []).map(MobileOfficialPlugin.init)
             )
             pluginsLoading = false
-            pluginsError = frame.managementAvailable == true ? nil : "当前 Host 不支持插件管理"
+            pluginsError = frame.managementAvailable == true ? nil : "This host does not support plugin management"
         case "plugins-changed":
             // The mutation response refreshes the catalog. Avoid a second fetch
             // for the same Host change while that response is still pending.
@@ -1118,20 +1119,20 @@ final class AppStore: ObservableObject {
             let application = frame.result?["application"]?.stringValue
             switch application {
             case "applied": pluginNotice = nil
-            case "restart-required": pluginNotice = "设置已保存，请重启 DSH Web 后刷新目录"
-            case "overridden": pluginNotice = "插件状态被其他配置覆盖，请检查 Host 配置"
-            default: pluginNotice = frame.result?["error"]?.stringValue ?? "插件操作未生效"
+            case "restart-required": pluginNotice = "Settings saved. Restart DSH Web, then refresh the catalog."
+            case "overridden": pluginNotice = "Another configuration overrides this plugin. Check the host configuration."
+            default: pluginNotice = frame.result?["error"]?.stringValue ?? "The plugin operation had no effect"
             }
             pluginToggleRequestID = nil
             pluginPendingName = nil
             refreshPlugins()
         case "error" where frame.requestType == "plugin-catalog" && frame.requestId == pluginCatalogRequestID:
             pluginsLoading = false
-            pluginsError = frame.message ?? "插件目录加载失败"
+            pluginsError = frame.message ?? "Failed to load the plugin catalog"
         case "error" where ["plugin-bundle-set-enabled", "plugin-entry-set-enabled"].contains(frame.requestType ?? "") && frame.requestId == pluginToggleRequestID:
             pluginToggleRequestID = nil
             pluginPendingName = nil
-            pluginNotice = frame.message ?? "插件操作失败"
+            pluginNotice = frame.message ?? "The plugin operation failed"
             refreshPlugins()
         default: break
         }
@@ -1160,12 +1161,12 @@ final class AppStore: ObservableObject {
 
     private func beginScheduledTaskMutation(_ task: ScheduledTask, kind: String) -> Bool {
         guard gateway.state.isConnected else {
-            scheduledTaskMutationError = "连接网关后才能修改定时任务"
+            scheduledTaskMutationError = "Connect to a gateway to modify scheduled tasks"
             return false
         }
         guard scheduledTaskPendingID == nil else { return false }
         guard scheduledTasks.first(where: { $0.id == task.id && $0.sessionID == task.sessionID })?.raw == task.raw else {
-            scheduledTaskMutationError = "任务已变化，列表已刷新，请重新操作"
+            scheduledTaskMutationError = "The task changed. The list was refreshed; try again."
             refreshScheduledTasks()
             return false
         }
@@ -1177,7 +1178,7 @@ final class AppStore: ObservableObject {
         Task { [weak self] in
             try? await Task.sleep(for: .seconds(15))
             guard let self, self.scheduledTaskMutationRequestID == requestID else { return }
-            self.finishScheduledTaskMutation(error: "操作超时，请刷新任务后重试")
+            self.finishScheduledTaskMutation(error: "The operation timed out. Refresh the tasks and try again.")
         }
         return true
     }
@@ -1401,7 +1402,7 @@ final class AppStore: ObservableObject {
         // 后台准备预览时忽略重复点击，避免弹出非必要的 download-busy 提示。
         guard !conversationFileIsOpening else { return }
         guard gateway.state.isConnected, supportsFileDownloads else {
-            lastError = "请先连接支持文件下载的 Mobile Gateway。"
+            lastError = "Connect to a Mobile Gateway that supports file downloads first."
             return
         }
         completedWorkspaceFile = nil
@@ -1497,7 +1498,7 @@ final class AppStore: ObservableObject {
                 guard let self else { return }
                 self.applySessionAgentPresetTransition(self.sessionAgentPresetStore.requestFailed(
                     type: request.requestType, sessionId: request.targetSessionId,
-                    requestId: request.correlationId, message: "模式请求超时，请重试"
+                    requestId: request.correlationId, message: "The mode request timed out. Try again."
                 ))
             }
         }
@@ -1663,7 +1664,7 @@ final class AppStore: ObservableObject {
                 type: "message", sessionId: self.selectedSessionId, requestId: nil, message: nil
             ))
             self.waitingForNewSession = false
-            self.lastError = "发送确认超时，请确认队列状态后重试"
+            self.lastError = "Send confirmation timed out. Check the queue state and try again."
         }
         waitingForNewSession = selectedSessionId == nil
         beginAgentBackgroundExecution(for: selectedSessionId, startsNewTurn: true)
@@ -1690,7 +1691,7 @@ final class AppStore: ObservableObject {
     private func applySlashCommandTransition(_ transition: SharedSlashCommandTransition) {
         slashCommands = transition.snapshot
         if let error = transition.snapshot.lastError {
-            lastError = String(localized: "斜杠命令操作失败") + "：\(error)"
+            lastError = String(localized: "斜杠命令操作失败") + ": \(error)"
         }
         if transition.selectedModel != nil ||
             (transition.clearDraft && !transition.snapshot.selections.isEmpty) {
@@ -1838,7 +1839,7 @@ final class AppStore: ObservableObject {
         }
         if frame.kind == "error" && frame.requestType == "schedule-catalog" {
             scheduledTasksLoading = false
-            scheduledTasksError = frame.message ?? "定时任务加载失败"
+            scheduledTasksError = frame.message ?? "Failed to load scheduled tasks"
             return
         }
         acceptSessionAgentPresetFrame(frame)
@@ -1999,10 +2000,10 @@ final class AppStore: ObservableObject {
 
     private func scheduledTaskFailureMessage(_ code: String?, _ message: String?) -> String {
         switch code {
-        case "schedule_conflict": "任务已被其他设备修改，列表已刷新，请重新打开编辑"
-        case "schedule_ended": "任务已结束，无法再编辑"
-        case "schedule_not_found": "任务已不存在，列表已刷新"
-        default: message ?? "操作失败，请稍后重试"
+        case "schedule_conflict": "Another device changed this task. The list was refreshed; reopen it to edit."
+        case "schedule_ended": "This task has ended and can no longer be edited"
+        case "schedule_not_found": "This task no longer exists. The list was refreshed."
+        default: message ?? "The operation failed. Try again later."
         }
     }
 
@@ -2273,7 +2274,7 @@ final class AppStore: ObservableObject {
 
     private func workspaceFileErrorMessage(_ code: String) -> String {
         switch code {
-        case "file-references-upgrade-required": "此文件需要新版网关解析，请升级 Mobile Gateway。"
+        case "file-references-upgrade-required": "This file needs a newer gateway to resolve. Upgrade the Mobile Gateway."
         case "file-download-integrity-failed": String(localized: "文件完整性校验失败，请重新下载。")
         case "download-busy": String(localized: "已有文件正在下载，请稍后再试。")
         case "file-download-offset-mismatch": String(localized: "文件分块顺序异常，下载已取消。")
@@ -2379,12 +2380,12 @@ final class AppStore: ObservableObject {
             let tracksPresets = finishRequest == "agent-presets" &&
                 kmpSessionControlStore.snapshot.requestTokens["agent-presets"] != nil
             if tracksPresets {
-                notice("Agent 预设诊断", "收到响应，开始处理")
+                notice("Agent preset diagnostics", "Response received, starting")
             }
             let transition = dispatchSessionControlAction(action)
             if tracksPresets {
                 if transition.applied { agentPresetsLoadError = nil }
-                notice("Agent 预设诊断", "响应处理完成 applied=\(transition.applied)")
+                notice("Agent preset diagnostics", "Response processed applied=\(transition.applied)")
             }
             // KMP 响应事务已原子完成 active 并可能启动 queued；
             // 这里不能再按 kind finish，否则会误结束新 generation。
@@ -2783,7 +2784,7 @@ final class AppStore: ObservableObject {
         guard correlatedControlFailure != false else { return }
         if payload.requestType == "agent-presets" {
             agentPresetsLoadError = String(localized: "Agent 预设加载失败，请重试。")
-            notice("Agent 预设诊断", "网关返回错误 code=\(payload.code ?? "unknown")", isError: true)
+            notice("Agent preset diagnostics", "Gateway returned an error code=\(payload.code ?? "unknown")", isError: true)
             return
         }
         lastError = detail
@@ -3183,10 +3184,10 @@ final class AppStore: ObservableObject {
         step: Int?
     ) {
         let detail: String?
-        if let step, let progressDetail = progress.detail, !progressDetail.hasPrefix("第 \(step) 步") {
-            detail = "第 \(step) 步 · \(progressDetail)"
+        if let step, let progressDetail = progress.detail, !progressDetail.hasPrefix("Step \(step)") {
+            detail = "Step \(step) · \(progressDetail)"
         } else if let step, progress.detail == nil {
-            detail = "第 \(step) 步"
+            detail = "Step \(step)"
         } else {
             detail = progress.detail
         }
@@ -3220,15 +3221,15 @@ final class AppStore: ObservableObject {
         applyWorkspaceFileTransition(kmpWorkspaceFileStore.reset(sessionId: selectedSessionId))
         if pluginToggleRequestID != nil {
             pluginNotice = pluginPendingName == "dsh-plugin-mobile-gateway"
-                ? "网关连接已断开，停用结果待重连确认。若已停用，请从 DSH Web 或 CLI 重新开启。"
-                : "连接已断开，操作结果待重连确认"
+                ? "The gateway connection was lost; the disable result awaits confirmation after reconnecting. If it was disabled, re-enable it from DSH Web or the CLI."
+                : "Connection lost. The operation result awaits confirmation after reconnecting."
             pluginToggleRequestID = nil
             pluginPendingName = nil
         }
         messageSubmissionTimeout?.cancel()
         messageSubmissionPending = false
         queueActionTimeout?.cancel()
-        if queueState.pendingItemId != nil { queueState = queueStore.failPending(message: "连接已中断，请重新连接后确认队列状态") }
+        if queueState.pendingItemId != nil { queueState = queueStore.failPending(message: "The connection was interrupted. Reconnect and confirm the queue state.") }
         assistantStreamState.disconnect()
         if let id = selectedSessionId {
             try? kmpConversationStore.clearAssistantChunks(sessionID: id)
@@ -3456,7 +3457,7 @@ final class AppStore: ObservableObject {
         case GatewayQuestionAction.cancel.rawValue:
             questionEffectExecutor.cancelQuestion(rpcId: effect.rpcId, sessionId: effect.sessionId)
         default:
-            lastError = "KMP Question 返回未知 effect：\(effect.action)"
+            lastError = "KMP Question returned an unknown effect: \(effect.action)"
         }
     }
 
@@ -3558,7 +3559,7 @@ final class AppStore: ObservableObject {
 
         if let effect = change.effect {
             guard effect.action == "request-page" else {
-                lastError = "KMP History 返回未知 effect：\(effect.action)"
+                lastError = "KMP History returned an unknown effect: \(effect.action)"
                 return
             }
             requestHistoryPage(for: effect.sessionId, beforeSeq: effect.beforeSequence)
@@ -3578,7 +3579,7 @@ final class AppStore: ObservableObject {
             case "REPEATED_CURSOR":
                 message = String(localized: "history.cursor.loop", defaultValue: "网关重复返回历史游标，已停止自动续页以避免循环。")
             default:
-                message = "KMP History 分页失败（\(change.failureCode ?? "unknown")）"
+                message = "KMP History pagination failed (\(change.failureCode ?? "unknown"))"
             }
             lastError = message
             notice(
@@ -3603,7 +3604,7 @@ final class AppStore: ObservableObject {
                 sessionId: change.sessionID
             )
         default:
-            lastError = "KMP History 返回未知 outcome：\(change.outcome)"
+            lastError = "KMP History returned an unknown outcome: \(change.outcome)"
         }
     }
     @discardableResult
@@ -3727,7 +3728,7 @@ final class AppStore: ObservableObject {
         let startedAt = Date()
         if effect.requestKey == "agent-presets" {
             agentPresetsLoadError = nil
-            notice("Agent 预设诊断", "开始请求 token=\(effect.requestToken) connected=\(gateway.state.isConnected)")
+            notice("Agent preset diagnostics", "Starting request token=\(effect.requestToken) connected=\(gateway.state.isConnected)")
         }
         tracker.begin(effect.requestKey, timeout: .seconds(12)) { [weak self] in
             guard let self,
@@ -3741,7 +3742,7 @@ final class AppStore: ObservableObject {
             ))
             if effect.requestKey == "agent-presets" {
                 self.agentPresetsLoadError = String(localized: "Agent 预设加载超时，请重试。")
-                self.notice("Agent 预设诊断", "请求超时 token=\(effect.requestToken) elapsed=\(Date().timeIntervalSince(startedAt))s connected=\(self.gateway.state.isConnected)", isError: true)
+                self.notice("Agent preset diagnostics", "Request timed out token=\(effect.requestToken) elapsed=\(Date().timeIntervalSince(startedAt))s connected=\(self.gateway.state.isConnected)", isError: true)
                 return
             }
             if let sessionID = effect.sessionId, self.preparedConversationActivationKey != sessionID { return }
@@ -3788,7 +3789,7 @@ final class AppStore: ObservableObject {
                 sessionControlEffectExecutor.setDefault(target: target, value: value)
             }
         default:
-            lastError = "KMP SessionControl 返回未知 effect：\(effect.kind)"
+            lastError = "KMP SessionControl returned an unknown effect: \(effect.kind)"
         }
     }
     private func persistSessions() {

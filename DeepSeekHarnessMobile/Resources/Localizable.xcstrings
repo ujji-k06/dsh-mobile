@@ -246,12 +246,12 @@
         }
       }
     },
-    "%@ 行 · UTF-8" : {
+    "%lld 行 · UTF-8" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ line(s) · UTF-8"
+            "value" : "%lld line(s) · UTF-8"
           }
         }
       }
@@ -3646,12 +3646,12 @@
         }
       }
     },
-    "从 App 移除选中的 %@ 台主机及连接凭证；网关上的会话和工作区不会被删除。再次连接需重新配对。" : {
+    "从 App 移除选中的 %lld 台主机及连接凭证；网关上的会话和工作区不会被删除。再次连接需重新配对。" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Remove the selected %@ host(s) and their connection credentials from the app. Sessions and workspaces on the gateways will remain. You will need to pair again to reconnect."
+            "value" : "Remove the selected %lld host(s) and their connection credentials from the app. Sessions and workspaces on the gateways will remain. You will need to pair again to reconnect."
           }
         }
       }
@@ -3753,6 +3753,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "你可以拖动滑块来调整字体大小。"
+          }
+        }
+      }
+    },
+    "使用系统预览" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open in another app"
           }
         }
       }
@@ -3919,18 +3930,18 @@
         }
       }
     },
-    "共 %@ 个 · %@ 运行中" : {
+    "共 %lld 个 · %lld 运行中" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ total · %2$@ running"
+            "value" : "%1$lld total · %2$lld running"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "共 %1$@ 个 · %2$@ 运行中"
+            "value" : "共 %1$lld 个 · %2$lld 运行中"
           }
         }
       }
@@ -3953,6 +3964,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Close"
+          }
+        }
+      }
+    },
+    "关闭会话统计" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close session stats"
           }
         }
       }
@@ -3986,6 +4008,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Close search"
+          }
+        }
+      }
+    },
+    "关闭文件预览" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close file preview"
+          }
+        }
+      }
+    },
+    "文件菜单" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File menu"
           }
         }
       }
@@ -4473,6 +4517,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Command execution failed"
+          }
+        }
+      }
+    },
+    "命令执行完成" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command execution completed"
           }
         }
       }
@@ -6071,6 +6126,17 @@
         }
       }
     },
+    "知道了" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Got it"
+          }
+        }
+      }
+    },
     "暂无已连接的主机" : {
       "localizations" : {
         "en" : {
@@ -6368,6 +6434,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "View %@ details"
+          }
+        }
+      }
+    },
+    "查看%lld张图片" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View %lld images"
           }
         }
       }
@@ -6881,6 +6958,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Every week"
+          }
+        }
+      }
+    },
+    "每日" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every day"
           }
         }
       }
@@ -8493,6 +8581,61 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Failed to update default settings"
+          }
+        }
+      }
+    },
+    "本版本新功能" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What's new in this version"
+          }
+        }
+      }
+    },
+    "GitHub 发布页" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub releases page"
+          }
+        }
+      }
+    },
+    "无法创建文件下载临时文件：%@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to create a temporary file for the download: %@"
+          }
+        }
+      }
+    },
+    "写入下载文件失败：%@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to write the downloaded file: %@"
+          }
+        }
+      }
+    },
+    "工作区文件请求失败：%@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Workspace file request failed: %@"
           }
         }
       }

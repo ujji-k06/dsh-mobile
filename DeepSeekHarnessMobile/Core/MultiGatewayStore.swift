@@ -30,7 +30,7 @@ final class MultiGatewayStore: ObservableObject {
             } else {
                 let legacy = UserDefaultsAppPreferences(userDefaults: defaults)
                 if defaults.string(forKey: "gateway.endpoint") != nil {
-                    let profile = GatewayProfile(gatewayName: URL(string: legacy.endpoint)?.host ?? "原有主机", endpoints: [legacy.endpoint])
+                    let profile = GatewayProfile(gatewayName: URL(string: legacy.endpoint)?.host ?? "Previous gateway", endpoints: [legacy.endpoint])
                     let scoped = UserDefaultsAppPreferences(userDefaults: defaults, gatewayID: profile.id)
                     scoped.endpoint = legacy.endpoint
                     scoped.saveSessions(legacy.loadSessions())
@@ -48,7 +48,7 @@ final class MultiGatewayStore: ObservableObject {
             } else {
                 installPairingHandler(on: activeStore)
             }
-        } catch { self.error = "读取或迁移主机资料失败：\(error.localizedDescription)" }
+        } catch { self.error = "Couldn't read or migrate gateway profiles: \(error.localizedDescription)" }
         AgentLiveActivityIntentBridge.install { [weak self] request in
             self?.handleLiveActivityApproval(request) ?? false
         }
@@ -69,7 +69,7 @@ final class MultiGatewayStore: ObservableObject {
                 sessionID: intent.sessionID,
                 rpcID: intent.rpcID,
                 title: store.title(for: intent.sessionID),
-                reason: "该审批已失效或已在其他设备处理"
+                reason: "This approval has expired or was already handled on another device"
             )
             return false
         }
@@ -79,7 +79,7 @@ final class MultiGatewayStore: ObservableObject {
                 sessionID: intent.sessionID,
                 rpcID: intent.rpcID,
                 title: store.title(for: intent.sessionID),
-                reason: "当前未连接 Gateway，请打开 App 后重试"
+                reason: "Not connected to the gateway. Open the app and try again."
             )
             return false
         }
@@ -155,7 +155,7 @@ final class MultiGatewayStore: ObservableObject {
         }
         var profile = existing ?? GatewayProfile(
             gatewayId: payload.gatewayId?.lowercased(),
-            gatewayName: payload.gatewayName ?? URL(string: endpoints[0])?.host ?? "新主机",
+            gatewayName: payload.gatewayName ?? URL(string: endpoints[0])?.host ?? "New gateway",
             endpoints: endpoints,
             deviceKind: GatewayIdentity.isLocal(URL(string: endpoints[0])?.host ?? "") ? "desktopcomputer" : "server.rack"
         )
@@ -327,6 +327,6 @@ final class MultiGatewayStore: ObservableObject {
 
     private func persist() {
         do { defaults.set(try JSONEncoder().encode(profiles), forKey: Self.profilesKey) }
-        catch { self.error = "保存主机资料失败：\(error.localizedDescription)" }
+        catch { self.error = "Couldn't save gateway profiles: \(error.localizedDescription)" }
     }
 }

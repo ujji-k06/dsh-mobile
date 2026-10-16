@@ -1,16 +1,16 @@
-## 功能更新
+## What's new
 
-- Android 与 iOS 新增应用字体大小设置，改善对话、审批、插件和设置页面在不同字号下的显示。
-- 优化工作区侧栏拖拽时的触感反馈与界面响应，改善首页和侧栏之间的交互体验。
-- 改善语音输入的录音启动、松手转写和取消响应，减少快速操作时的等待与状态异常。
-- Android 更新检查及 APK 下载优先使用加速源，失败时回退 GitHub，并校验文件完整性与构建版本。
-- 调整对话输入、语音面板和插件页面布局，改善键盘切换与滚动显示。
+- Android and iOS now have an app font size setting, improving how conversations, approvals, plugins, and settings pages display at different text sizes.
+- Improved the haptic feedback and UI responsiveness when dragging the workspace sidebar, for a better experience moving between the home screen and the sidebar.
+- Improved recording start, release-to-transcribe, and cancel behavior in voice input, reducing waiting and abnormal states during rapid actions.
+- Android update checks and APK downloads now prefer an accelerated mirror, falling back to GitHub on failure, and verify file integrity and the build version.
+- Adjusted the layout of the conversation input, the voice panel, and the plugins page, improving keyboard switching and scrolling.
 
-## 必需插件
+## Required plugin
 
-- 必须安装 [dsh-plugin-mobile-gateway](https://github.com/Clarklevis1995/dsh-plugin-mobile-gateway) `v0.10.1` 或更高版本。
-- 语音输入需在桌面端启用官方「语音输入」插件，并完成识别模型初始化。
-- 安装或升级后，需要完整退出并重新启动 `dsh web`。
+- [dsh-plugin-mobile-gateway](https://github.com/Clarklevis1995/dsh-plugin-mobile-gateway) `v0.10.1` or later must be installed.
+- Voice input requires the official "Voice Input" plugin to be enabled on the desktop side, with recognition model initialization completed.
+- After installing or upgrading, you must fully quit and restart `dsh web`.
 
 ```bash
 dsh plugin --profile web add dsh-plugin-mobile-gateway@latest

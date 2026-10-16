@@ -131,7 +131,7 @@ private struct RootNavigationHost: View, Equatable {
             ScheduledTasksView(store: store) { sessionID in
                 let session = store.sessions.first(where: { $0.id == sessionID }) ?? SessionSummary(
                     id: sessionID,
-                    title: store.scheduledTasks.first(where: { $0.sessionID == sessionID })?.title ?? "会话",
+                    title: store.scheduledTasks.first(where: { $0.sessionID == sessionID })?.title ?? "Session",
                     lastActivity: .now,
                     isRunning: false,
                     hasUnread: false
@@ -701,7 +701,7 @@ private struct ScheduledTaskEditSheet: View {
                             DatePicker("执行时刻", selection: $selectedTime, displayedComponents: .hourAndMinute)
                                 .datePickerStyle(.wheel)
                                 .environment(\.timeZone, zone)
-                            Text("保留原有\(task.kind == "daily" ? "每日" : "每周")规则和时区 \(zone.identifier)。")
+                            Text("保留原有\(task.kind == "daily" ? String(localized: "每日") : String(localized: "每周"))规则和时区 \(zone.identifier)。")
                                 .appFont(.caption).foregroundStyle(.secondary)
                         } else {
                             Text("当前规则：\(ScheduledTaskFormat.fullRule(task))。选择上方选项后，可用日期和时间选择器改为单次执行。")
@@ -956,7 +956,7 @@ private struct WorkspaceFilesSheet: View {
                     VStack(spacing: 9) {
                         ProgressView(value: progress)
                         HStack {
-                            Text("正在下载 · \(Int(progress * 100))%")
+                            Text("Downloading · \(Int(progress * 100))%")
                                 .appFont(.caption.monospacedDigit())
                                 .foregroundStyle(.secondary)
                             Spacer()
@@ -1007,7 +1007,7 @@ private struct WorkspaceFilesSheet: View {
     private var workspaceFilePathBar: some View {
         HStack(spacing: 8) {
             Image(systemName: "folder")
-            Text(store.workspaceFilePath == "." ? "工作区根目录" : store.workspaceFilePath)
+            Text(store.workspaceFilePath == "." ? "Workspace root" : store.workspaceFilePath)
                 .lineLimit(1)
                 .truncationMode(.middle)
             Spacer()
@@ -1107,7 +1107,7 @@ private struct WorkspaceFileRow: View {
                 .buttonStyle(.plain)
                 .disabled(isDownloading)
                 .accessibilityLabel(
-                    isDownloaded ? "\(item.name) 已下载，点击重新下载" : "下载 \(item.name)"
+                    isDownloaded ? "\(item.name) downloaded, tap to download again" : "Download \(item.name)"
                 )
             }
             .listRowBackground(FileIconCatalog.shared.resolve(name: item.name, mediaType: item.mediaType).cardBackground)
@@ -1134,7 +1134,7 @@ private struct WorkspaceFileRow: View {
     private func workspaceFileDetail(_ item: GatewayDirectoryItem) -> String {
         let size = item.bytes.map {
             ByteCountFormatter.string(fromByteCount: $0, countStyle: .file)
-        } ?? "文件"
+        } ?? "File"
         guard let modifiedAt = item.modifiedAt else { return size }
         let date = Date(timeIntervalSince1970: modifiedAt / 1_000)
         return "\(size) · \(date.formatted(date: .abbreviated, time: .shortened))"
@@ -1321,10 +1321,10 @@ struct WorkspaceCodePreview: View {
             guard !Task.isCancelled else { return }
             document = loaded.value
         } catch WorkspaceCodePreviewLoadError.fileTooLarge {
-            errorMessage = "文件超过 2 MB，请使用系统应用打开"
+            errorMessage = "The file is larger than 2 MB. Open it with another app."
         } catch {
             guard !Task.isCancelled else { return }
-            errorMessage = "读取代码失败：\(error.localizedDescription)"
+            errorMessage = "Could not read the file: \(error.localizedDescription)"
         }
     }
 }

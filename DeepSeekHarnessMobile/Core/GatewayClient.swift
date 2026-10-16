@@ -115,7 +115,7 @@ final class GatewayClient: ObservableObject {
         } else {
             continuation.resume(throwing: NSError(
                 domain: "GatewaySessionCreation", code: 1,
-                userInfo: [NSLocalizedDescriptionKey: frame.message ?? "创建会话失败"]
+                userInfo: [NSLocalizedDescriptionKey: frame.message ?? "Couldn't create the session"]
             ))
         }
         return true
@@ -212,7 +212,7 @@ final class GatewayClient: ObservableObject {
             return
         }
         if !trustedEndpoints.isEmpty && !trustedEndpoints.contains(url.absoluteString) {
-            fail("地址未经此主机确认，请重新扫码添加地址。", shouldReconnect: false)
+            fail("This host hasn't confirmed the address. Scan the code again to add it.", shouldReconnect: false)
             return
         }
         wantsConnection = true
@@ -621,7 +621,7 @@ final class GatewayClient: ObservableObject {
         let bytes = payload.utf8.count
         guard pendingConversationPayloads.count < 64,
               pendingConversationBytes + bytes <= 16 * 1024 * 1024 else {
-            fail("会话通道尚未就绪，请稍后重试。", shouldReconnect: false)
+            fail("The session channel isn't ready yet. Try again in a moment.", shouldReconnect: false)
             return true
         }
         pendingConversationPayloads.append(payload)
@@ -678,7 +678,7 @@ final class GatewayClient: ObservableObject {
                         )
                     }
                     if frame.kind == "hello", isManualPairingAttempt, pairingCode != nil {
-                        fail("配对未返回长期凭据，请重新生成二维码。", shouldReconnect: false)
+                        fail("Pairing didn't return long-term credentials. Generate a new QR code.", shouldReconnect: false)
                         return
                     }
                     if frame.kind == "paired" || frame.kind == "hello" {
