@@ -4837,9 +4837,12 @@ final class GatewayProtocolTests: XCTestCase {
         _ = adapter.reduce(.requestPermissionOptions(sessionID: "session-1", isConnected: true))
         transition = adapter.reduce(.action(permissionsAction))
         XCTAssertEqual(transition.snapshot.sessionPermissions["session-1"]?.currentValue, "read-only")
+        // The host owns this list, including a value this app has no icon or copy for yet:
+        // SharedSessionControlStoreTest.mergesControlResponsesAndPreservesDynamicPermissions
+        // pins the same pass-through, and the permission sheet renders whatever arrives.
         XCTAssertEqual(
             transition.snapshot.sessionPermissions["session-1"]?.options?.map(\.value),
-            ["read-only"]
+            ["read-only", "future"]
         )
     }
 

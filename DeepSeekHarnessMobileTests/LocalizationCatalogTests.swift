@@ -142,11 +142,14 @@ final class LocalizationCatalogTests: XCTestCase {
 
         let sessionTitle = "模拟器测试会话"
         let chinese = Locale(identifier: "zh-Hans")
+        // The locale argument formats substitutions; the bundle chooses the translated table.
+        let chinesePath = try XCTUnwrap(Bundle.main.path(forResource: "zh-Hans", ofType: "lproj"))
+        let chineseBundle = try XCTUnwrap(Bundle(path: chinesePath))
         XCTAssertEqual(
             String(
                 localized: "agent.notification.execution.completed.title",
                 defaultValue: "执行完成",
-                bundle: .main,
+                bundle: chineseBundle,
                 locale: chinese
             ),
             "执行完成"
@@ -155,7 +158,7 @@ final class LocalizationCatalogTests: XCTestCase {
             String(
                 localized: "agent.notification.execution.completed.body",
                 defaultValue: "\(sessionTitle)：Agent 已完成本次任务",
-                bundle: .main,
+                bundle: chineseBundle,
                 locale: chinese
             ),
             "模拟器测试会话：Agent 已完成本次任务"
