@@ -10,7 +10,10 @@ protocol BackgroundTaskApplication: AnyObject {
     func endBackgroundTask(_ identifier: UIBackgroundTaskIdentifier)
 }
 
-extension UIApplication: BackgroundTaskApplication {}
+// UIApplication's beginBackgroundTask declares a plain `(() -> Void)?` handler, so the
+// requirement's `@Sendable` one no longer matches on the iOS 18 SDK and the conformance
+// fails to compile. @preconcurrency accepts the difference, as SE-0337 intends.
+extension UIApplication: @preconcurrency BackgroundTaskApplication {}
 
 @MainActor
 final class AgentBackgroundExecutionController {
