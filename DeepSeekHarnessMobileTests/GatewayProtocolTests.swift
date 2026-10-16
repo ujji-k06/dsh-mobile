@@ -7056,11 +7056,11 @@ private final class MalformedHistoryEventBridge:
 private final class BackgroundTaskApplicationSpy: BackgroundTaskApplication {
     private(set) var beginCallCount = 0
     private(set) var endedIdentifiers: [UIBackgroundTaskIdentifier] = []
-    private(set) var expirationHandler: (@Sendable () -> Void)?
+    private(set) var expirationHandler: (@MainActor @Sendable () -> Void)?
 
     func beginBackgroundTask(
         withName taskName: String?,
-        expirationHandler handler: (@Sendable () -> Void)?
+        expirationHandler handler: (@MainActor @Sendable () -> Void)?
     ) -> UIBackgroundTaskIdentifier {
         beginCallCount += 1
         expirationHandler = handler

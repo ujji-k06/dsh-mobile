@@ -5,15 +5,14 @@ import OSLog
 protocol BackgroundTaskApplication: AnyObject {
     func beginBackgroundTask(
         withName taskName: String?,
-        expirationHandler handler: (@Sendable () -> Void)?
+        expirationHandler handler: (@MainActor @Sendable () -> Void)?
     ) -> UIBackgroundTaskIdentifier
     func endBackgroundTask(_ identifier: UIBackgroundTaskIdentifier)
 }
 
-// UIApplication's beginBackgroundTask declares a plain `(() -> Void)?` handler, so the
-// requirement's `@Sendable` one no longer matches on the iOS 18 SDK and the conformance
-// fails to compile. @preconcurrency accepts the difference, as SE-0337 intends.
-extension UIApplication: @preconcurrency BackgroundTaskApplication {}
+// UIApplication declares this handler as `(@MainActor @Sendable () -> Void)?`; the
+// requirement above mirrors it so the conformance holds on the iOS 18 SDK.
+extension UIApplication: BackgroundTaskApplication {}
 
 @MainActor
 final class AgentBackgroundExecutionController {
