@@ -125,7 +125,7 @@ final class AgentLiveActivityLifecycleTests: XCTestCase {
         XCTAssertTrue(requestedDetails.isEmpty)
         appState = .active
         manager.applicationDidBecomeActive()
-        XCTAssertEqual(requestedDetails, ["正在执行 Bash"])
+        XCTAssertEqual(requestedDetails, ["Running Bash"])
         // 请求失败后，后续高频进度不能不断重试系统调用。
         manager.stepStarted(gatewayID: "gateway", sessionID: "session", title: "任务", step: 2)
         XCTAssertEqual(requestedDetails.count, 1)
